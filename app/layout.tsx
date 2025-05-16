@@ -26,10 +26,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased m-8`}
       >
-        <nav>
-          <Link href="/help">help</Link>
+        <nav className="flex gap-2 mb-6">
+          <Link href="/" className="hover:underline">
+            Home
+          </Link>
+          <Link href="/news" className="hover:underline">
+            News
+          </Link>
         </nav>
         {children}
       </body>
