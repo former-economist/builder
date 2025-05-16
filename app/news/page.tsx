@@ -1,5 +1,6 @@
 "use client";
 
+import ReactPaginate from "react-paginate";
 import { Card } from "../components/Card";
 import { useState } from "react";
 
@@ -16,9 +17,27 @@ const fetchSpaceNews = async (search: FormDataEntryValue | null) => {
   return results;
 };
 
+const fetchSpaceNewsPaginated = async ({ querykey }) => {
+  const [_, page, search] = querykey;
+  const response = await fetch(
+    `https://api.spaceflightnewsapi.net/v4/articles/?limit=5&offset=${page}&search=${search}`
+  );
+  const data = await response.json();
+  const list = [data];
+  const results = list[0].results;
+  console.log(results);
+  return results;
+};
+
 export default function News() {
   const [news, setNews] = useState<JSONValue[]>([]);
+  const [currentpage, setCurrentPage] = useState(0);
 
+  const { data, isLoading, isError } = useQuery({
+    querykey: ["articles", currentpage],
+    queryFn: fetchSpaceNewsPaginated,
+    placeHolderData: (prevData) => prevData ?? { data: [] },
+  });
   return (
     <>
       <h1>News</h1>
@@ -30,7 +49,7 @@ export default function News() {
               setNews([]);
               const formData = new FormData(e.currentTarget);
               const searchValue = formData.get("search");
-              fetchSpaceNews(searchValue).then(setNews);
+              fetchSpaceNewsPaginated(searchValue).then(setNews);
             }}
             className="grid gap-3 col-span-1"
           >
@@ -59,6 +78,18 @@ export default function News() {
               />
             ))}
         </div>
+        <ReactPaginate
+          previousLabel={"Previous"}
+          nextLabel={"Next"}
+          breakLabel={"..."}
+          breakClassName={"break-me"}
+          pageCount={pageCount}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={3}
+          onPageChange={handlePageClick}
+          containerClassName={"pagination"}
+          activeClassName={"active"}
+        />
       </div>
     </>
   );
