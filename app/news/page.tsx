@@ -1,5 +1,6 @@
 "use client";
 
+import { Card } from "../components/Card";
 import { useState } from "react";
 
 type JSONValue = JSONValue[] | { [key: string]: JSONValue };
@@ -49,13 +50,13 @@ export default function News() {
           {news.length === 0 && <p>Loading...</p>}
           {news.length > 0 &&
             news.map((article) => (
-              <a
-                className="hover:underline block mb-2"
-                href={article.url}
+              <Card
                 key={article.id}
-              >
-                {article.title}
-              </a>
+                url={article.url}
+                title={article.title}
+                summary={article.summary}
+                publishedAt={article.published_at}
+              />
             ))}
         </div>
       </div>
