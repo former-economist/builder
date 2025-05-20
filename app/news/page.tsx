@@ -1,14 +1,29 @@
 "use client";
 
-import ReactPaginate from "react-paginate";
+import {
+  keepPreviousData,
+  useQuery,
+  QueryFunctionContext,
+} from "@tanstack/react-query";
+// import ReactPaginate from "react-paginate";
 import { Card } from "../components/Card";
 import { useState } from "react";
 
 type JSONValue = JSONValue[] | { [key: string]: JSONValue };
 
-const fetchSpaceNews = async (search: FormDataEntryValue | null) => {
+type Key = [
+  string,
+  {
+    page: string | number;
+    searchTerm: string | undefined;
+  }
+];
+
+const fetchSpaceNews = async (
+  searchTerm: FormDataEntryValue | string | null
+) => {
   const response = await fetch(
-    `https://api.spaceflightnewsapi.net/v4/articles/?ordering=&search=${search}`
+    `https://api.spaceflightnewsapi.net/v4/articles/?limit=5&search=${searchTerm}`
   );
   const data = await response.json();
   const list = [data];
@@ -17,10 +32,12 @@ const fetchSpaceNews = async (search: FormDataEntryValue | null) => {
   return results;
 };
 
-const fetchSpaceNewsPaginated = async ({ querykey }) => {
-  const [_, page, search] = querykey;
+const fetchSpaceNewsPaginated = async ({
+  queryKey,
+}: QueryFunctionContext<Key>) => {
+  const [_key, { page, searchTerm }] = queryKey;
   const response = await fetch(
-    `https://api.spaceflightnewsapi.net/v4/articles/?limit=5&offset=${page}&search=${search}`
+    `https://api.spaceflightnewsapi.net/v4/articles/?limit=5&offset=${page}&search=${searchTerm}`
   );
   const data = await response.json();
   const list = [data];
@@ -31,12 +48,13 @@ const fetchSpaceNewsPaginated = async ({ querykey }) => {
 
 export default function News() {
   const [news, setNews] = useState<JSONValue[]>([]);
-  const [currentpage, setCurrentPage] = useState(0);
+  const [page, setPage] = useState<number | string>(0);
+  const [searchTerm, setSearchTerm] = useState<string | undefined>("");
 
   const { data, isLoading, isError } = useQuery({
-    querykey: ["articles", currentpage],
-    queryFn: fetchSpaceNewsPaginated,
-    placeHolderData: (prevData) => prevData ?? { data: [] },
+    queryKey: ["articles", { page, searchTerm }],
+    queryFn: () => fetchSpaceNewsPaginated,
+    placeholderData: keepPreviousData,
   });
   return (
     <>
@@ -48,8 +66,10 @@ export default function News() {
               e.preventDefault();
               setNews([]);
               const formData = new FormData(e.currentTarget);
-              const searchValue = formData.get("search");
-              fetchSpaceNewsPaginated(searchValue).then(setNews);
+              const searchValue = setSearchTerm(
+                formData.get("search")?.toString()
+              );
+              fetchSpaceNews(searchValue).then(setNews);
             }}
             className="grid gap-3 col-span-1"
           >
@@ -78,18 +98,6 @@ export default function News() {
               />
             ))}
         </div>
-        <ReactPaginate
-          previousLabel={"Previous"}
-          nextLabel={"Next"}
-          breakLabel={"..."}
-          breakClassName={"break-me"}
-          pageCount={pageCount}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={3}
-          onPageChange={handlePageClick}
-          containerClassName={"pagination"}
-          activeClassName={"active"}
-        />
       </div>
     </>
   );
