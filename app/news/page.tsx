@@ -46,15 +46,19 @@ const fetchSpaceNewsPaginated = async ({
 };
 
 export default function News() {
-  const [news, setNews] = useState<JSONValue[]>([]);
+  // const [news, setNews] = useState<JSONValue[]>([]);
   const [page, setPage] = useState<number>(1);
-  const [searchTerm, setSearchTerm] = useState<string | undefined>(" ");
+  const [searchTerm, setSearchTerm] = useState<string | undefined>("");
 
-  const { data, isPending, isError, isFetching, isPlaceholderData } = useQuery({
-    queryKey: ["articles", { page, searchTerm }],
-    queryFn: () => () => fetchSpaceNewsPaginated,
-    placeholderData: keepPreviousData,
-  });
+  const { data, isPending, isError, error, isFetching, isPlaceholderData } =
+    useQuery({
+      queryKey: ["articles", { page, searchTerm }],
+      queryFn: fetchSpaceNewsPaginated,
+      placeholderData: keepPreviousData,
+    });
+
+  console.log(data);
+
   return (
     <>
       <div>{isPlaceholderData.valueOf()}</div>
@@ -64,15 +68,12 @@ export default function News() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              setNews([]);
               const formData = new FormData(e.currentTarget);
               const searchValue = formData.get("search");
               if (searchValue === null || searchValue === undefined) {
                 setSearchTerm("");
-                fetchSpaceNews("").then(setNews);
               } else {
                 setSearchTerm(searchValue?.toString());
-                fetchSpaceNews(searchValue?.toString()).then(setNews);
               }
             }}
             className="grid gap-3 col-span-1"
@@ -90,17 +91,23 @@ export default function News() {
           </form>
         </div>
         <div className="col-span-3 col-start-2">
-          {news.length === 0 && <p>Loading...</p>}
-          {news.length > 0 &&
-            news.map((article) => (
-              <Card
-                key={article.id}
-                url={article.url}
-                title={article.title}
-                summary={article.summary}
-                publishedAt={article.published_at}
-              />
-            ))}
+          {isPending ? (
+            <div>Loading...</div>
+          ) : isError ? (
+            <div>Error: {error.message}</div>
+          ) : (
+            <div>
+              {data.map((article) => (
+                <Card
+                  key={article.id}
+                  url={article.url}
+                  title={article.title}
+                  summary={article.summary}
+                  publishedAt={article.published_at}
+                />
+              ))}
+            </div>
+          )}
           <span>Current Page: {page + 1}</span>
           <button
             onClick={() => {
