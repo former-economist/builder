@@ -26,29 +26,28 @@ const fetchSpaceNews = async (search: string | null) => {
   const data = await response.json();
   const list = [data];
   const results = list[0].results;
-  console.log(results);
   return results;
 };
 
 const fetchSpaceNewsPaginated = async ({
   queryKey,
 }: QueryFunctionContext<Key>) => {
-  console.log("here");
   const [_key, { page, searchTerm }] = queryKey;
   const response = await fetch(
     `https://api.spaceflightnewsapi.net/v4/articles/?limit=5&offset=${page}&search=${searchTerm}`
   );
   const data = await response.json();
   const list = [data];
+  console.log(list);
   const results = list[0].results;
-  console.log(results);
+  const count = list[0].count;
   return results;
 };
 
 export default function News() {
   // const [news, setNews] = useState<JSONValue[]>([]);
   const [page, setPage] = useState<number>(1);
-  const [searchTerm, setSearchTerm] = useState<string | undefined>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const { data, isPending, isError, error, isFetching, isPlaceholderData } =
     useQuery({
@@ -56,8 +55,6 @@ export default function News() {
       queryFn: fetchSpaceNewsPaginated,
       placeholderData: keepPreviousData,
     });
-
-  console.log(data);
 
   return (
     <>
