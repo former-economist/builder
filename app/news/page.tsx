@@ -8,6 +8,7 @@ import {
 // import ReactPaginate from "react-paginate";
 import { Card } from "../components/Card";
 import { useState } from "react";
+import FeedbackForm from "../components/FeedbackForm";
 
 type JSONValue = JSONValue[] | { [key: string]: JSONValue };
 
@@ -105,27 +106,30 @@ export default function News() {
               ))}
             </div>
           )}
-          <span>Current Page: {page + 1}</span>
-          <button
-            onClick={() => {
-              setPage((old) => Math.max(old - 1, 0));
-              console.log(page);
-            }}
-            className="bg-black text-white mr-3"
-          >
-            Previous Page
-          </button>
-          <button
-            onClick={() => {
-              setPage((old) => old + 1);
-              console.log(page);
-            }}
-            // Disable the Next Page button until we know a next page is available
-            // disabled={isPlaceholderData || !data?.hasMore}
-            className="bg-black text-white"
-          >
-            Next Page
-          </button>
+          <div className="mb-4">
+            <span>Current Page: {page + 1}</span>
+            <button
+              onClick={() => {
+                setPage((old) => Math.max(old - 1, 0));
+                console.log(page);
+              }}
+              className="bg-black text-white mr-3"
+            >
+              Previous Page
+            </button>
+            <button
+              onClick={() => {
+                setPage((old) => old + 1);
+                console.log(page);
+              }}
+              // Disable the Next Page button until we know a next page is available
+              // disabled={isPlaceholderData || !data?.hasMore}
+              className="bg-black text-white"
+            >
+              Next Page
+            </button>
+          </div>
+          <FeedbackForm />
         </div>
       </div>
     </>

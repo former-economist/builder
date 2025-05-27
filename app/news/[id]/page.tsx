@@ -1,3 +1,4 @@
+import FeedbackForm from "@/app/components/FeedbackForm";
 import Image from "next/image";
 
 const fetchSpaceNews = async () => {
@@ -31,9 +32,7 @@ export type paramsType = Promise<{ id: string }>;
 
 export default async function NewsPage({ params }: { params: paramsType }) {
   const { id } = await params;
-  console.log(id);
   const post = await fetchSpaceNewsArticle(id);
-  console.log(post);
 
   return (
     <>
@@ -44,6 +43,7 @@ export default async function NewsPage({ params }: { params: paramsType }) {
       <p className="mb-6 text-lg">Publisher: {post.news_site}</p>
       <p className="mx-auto max-w-2xl">{post.summary}</p>
       <p className="mb-6 text-lg">{post.published_at}</p>
+      <FeedbackForm />
     </>
   );
 }
